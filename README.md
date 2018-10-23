@@ -1,9 +1,5 @@
 # Mapreduce
 实现mapreduce模型框架
-
-
-
-
 mapreduce 基础功能完成功能如下
 
 1. mapf     处理单个kv
@@ -13,10 +9,9 @@ mapreduce 基础功能完成功能如下
 3.1 worker  call mapfunction // 处理单个kv
 3.2.worker call reducefunction // 合并kv
 4. master  主要的协调管理  和 work是同时fork出来的生产节点调度
-master 的级别和worker级别是一样的  
+master 的级别和worker级别是一样的,都是有userapi触发fork生成的rpc调度
 4.1 切分文件   
 4.2 根据切分的文件分发工作任务(rpc)  n->map     r->reduce
-
 4.3 调度不同的节点处理任务  call map worker(词频统计)  ->  call reduce worker (合并)
   此处会涉及并行计算、容错、数据分布、负载均衡等复杂的细节，这些问题都被封装在 了一个库里面,暂时不用关心
 
