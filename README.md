@@ -17,7 +17,7 @@ master 的级别和worker级别是一样的,都是有userapi触发fork生成的r
 4.4 完成所有的task 和 reduce  输出统计结果
 
 
-### 高级功能 (todo:)
+### 高级功能  //TODO
 1. work节点容错   
   1).保持work和master之间的心跳
   2)保留工作现场,恢复工作现场
@@ -53,6 +53,7 @@ hash 对 任务的平衡分区  //一致性hash
 
 
 ####### 下面是胡说八道
+
 调度的work是并行的
 多节点模拟我们使用rpc
 schedule  可以认为是main函数  这里是客户调用的处理进程  
