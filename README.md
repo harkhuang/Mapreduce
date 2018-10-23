@@ -6,29 +6,21 @@
 
 mapreduce 基础功能完成功能如下
 
-1.mapf     处理单个kv
-
-2.reducef  合并处理的结果
-
+1. mapf     处理单个kv
+2. reducef  合并处理的结果
 //3.schdule  任务调度  // 在论文中并没有描述  我们理解此处是客户端的调用 mapreduce
-
-3.worker //可以详细的执行任务的的计划,如果想提升效率容错性 细化工作的粒度和容错机制
-
-3.1.worker  call mapfunction // 处理单个kv
-
+3. worker //可以详细的执行任务的的计划,如果想提升效率容错性 细化工作的粒度和容错机制
+3.1 worker  call mapfunction // 处理单个kv
 3.2.worker call reducefunction // 合并kv
-
-4.master  主要的协调管理  和 work是同时fork出来的生产节点调度
+4. master  主要的协调管理  和 work是同时fork出来的生产节点调度
 master 的级别和worker级别是一样的  
+4.1 切分文件   
+4.2 根据切分的文件分发工作任务(rpc)  n->map     r->reduce
 
-4.1.切分文件   
-
-4.2.根据切分的文件分发工作任务(rpc)  n->map     r->reduce
-
-4.3.调度不同的节点处理任务  call map worker(词频统计)  ->  call reduce worker (合并)
+4.3 调度不同的节点处理任务  call map worker(词频统计)  ->  call reduce worker (合并)
   此处会涉及并行计算、容错、数据分布、负载均衡等复杂的细节，这些问题都被封装在 了一个库里面,暂时不用关心
 
-4.4.完成所有的task 和 reduce  输出统计结果
+4.4 完成所有的task 和 reduce  输出统计结果
 
 
 
@@ -74,6 +66,7 @@ hash 对 任务的平衡分区  //一致性hash
 
 
 // 下面是胡说八道
+
 调度的work是并行的
 多节点模拟我们使用rpc
 schedule  可以认为是main函数  这里是客户调用的处理进程  
