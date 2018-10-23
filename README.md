@@ -1,6 +1,6 @@
-# Mapreduce
-## 实现mapreduce模型框架
-### mapreduce 基础功能
+# 实现mapreduce模型框架
+
+### 基础功能
 
 1. mapf     处理单个kv
 2. reducef  合并处理的结果
