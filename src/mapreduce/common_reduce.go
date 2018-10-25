@@ -62,6 +62,7 @@ func doReduce(
 // 获取tasknum  run nubmer of task
 
 // reduce 处理多个map 
+
 // 根据 task分配获取多个map的key
 func reduceF(
 	reduceTaskNumber int, // which reduce task this is
