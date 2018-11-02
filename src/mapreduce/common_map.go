@@ -1,77 +1,64 @@
 package mapreduce
 
 import (
-	"strings"
-	"io"
 	"hash/fnv"
 	"io/ioutil"
-	"os"
+	"log"
 	"encoding/json"
-	"fmt"
-	"bufio"
+	"os"
 )
 
-// doMap does the job of a map worker: it reads one of the input files
-// (inFile), calls the user-defined map function (mapF) for that file's
-// contents, and partitions the output into nReduce intermediate files.
+
 func doMap(
-	jobName string, // the name of the MapReduce job
-	mapTaskNumber int, // which map task this is
-	inFile string,
-	nReduce int, // the number of reduce task that will be run ("R" in the paper)
-	mapF func(file string, contents string) []KeyValue,
+jobName string, 
+mapTaskNumber int, 
+inFile string,
+nReduce int, // ("R" in the paper)
+mapF func(file string, contents string) []KeyValue,
 ) {
-	// s1; 读文件
-	var mapret map[string]int = mapF(inFile,"xxxxx")
-	//  S3： 将mapF返回的数据根据key分类,跟文件名对应(reduceName获取文件名)
-	var reducename string = reduceName(jobName,mapTaskNumber,nReduce)
-	filename = reducename + “.txt”
-	writeFile ,writeError := open(reducename,os.O_WRONLY|os.O_CREATE, 0666)
-	defer writeFile.close
-	for key,value range mapret {
-		writeFile.Write(key,value)
+	//setp 1 read file
+	contents, err := ioutil.ReadFile(inFile)
+	if err != nil {
+		log.Fatal("do map error for inFile ",err)
 	}
-	// 　S4: 　将分类好的数据分别写入不同文件
-	defer writeFile.Close()
+	//setp 2 call user user-map method ,to get kv
+	kvResult := mapF(inFile, string(contents))
+	
 
-	var buf string 
-	for key,value := range mapret {
-		buf += key
-		buf += ":" 
-		buf += strconv.Itoa(value) 
-		buf += "\n"		
-	}
-	writeFile.WriteString(buf)
+	/**
+	 *   setp 3 use key of kv generator nReduce file ,partition
+	 *      a. create tmpFiles
+	 *      b. create encoder for tmpFile to write contents
+	 *      c. partition by key, then write tmpFile
+	 */
 
-}
+	var tmpFiles  [] *os.File = make([] *os.File, nReduce)
+	var encoders    [] *json.Encoder = make([] *json.Encoder, nReduce)
 
- 
-// word counts from file
-func mapF(file string, contens string) (map[string]int){
-	inputFile ,inputError := os.Open(file)
-	if inputError != nil{
-		fmt.Println("open file error")
-		return nil
-	}
-	defer inputFile.Close()
+	for i := 0; i < nReduce; i++ {
+		tmpFileName := reduceName(jobName,mapTaskNumber,i)
+		tmpFiles[i],err = os.Create(tmpFileName)
+		if err!=nil {
+			log.Fatal(err)
+		}
 
-	retmap := make(map[string]int)
-
-	scanner := bufio.NewScanner(inputFile)  
-
-	for scanner.Scan(){
-		fmt.Println(scanner.Text())
-		words := strings.Fields(scanner.Text())
-		for _,word :=range words{
-			retmap[word]+=1
+		defer tmpFiles[i].Close()
+		encoders[i] = json.NewEncoder(tmpFiles[i])
+		if err!=nil {
+			log.Fatal(err)
 		}
 	}
-	return retmap
+
+	for _ , kv := range kvResult {
+		hashKey := int(ihash(kv.Key)) % nReduce
+		err := encoders[hashKey].Encode(&kv)
+		if err!=nil {
+			log.Fatal("do map encoders ",err)
+		}
+	}
+
 }
 
-
-
-// 此处为何用到hash??
 func ihash(s string) uint32 {
 	h := fnv.New32a()
 	h.Write([]byte(s))

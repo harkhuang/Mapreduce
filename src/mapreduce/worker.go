@@ -13,15 +13,16 @@ import (
 type Worker struct {
 	sync.Mutex
 
-	name   string				// worker的名字
-	Map    func(string, string) []KeyValue	
+	name   string
+	Map    func(string, string) []KeyValue
 	Reduce func(string, []string) string
 	nRPC   int // protected by mutex
 	nTasks int // protected by mutex
 	l      net.Listener
 }
 
-// DoTask is called by the master when a new task is being scheduled on this worker.
+// DoTask is called by the master when a new task is being scheduled on this
+// worker.
 func (wk *Worker) DoTask(arg *DoTaskArgs, _ *struct{}) error {
 	fmt.Printf("%s: given %v task #%d on file %s (nios: %d)\n",
 		wk.name, arg.Phase, arg.TaskNumber, arg.File, arg.NumOtherPhase)

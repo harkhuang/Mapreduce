@@ -22,9 +22,9 @@ const (
 // Check if we have N numbers in output file
 
 // Split in words
-// 分割单词
 func MapFunc(file string, value string) (res []KeyValue) {
-	words := strings.Fields(value) // 分隔空格隔开的单词
+	debug("Map %v\n", value)
+	words := strings.Fields(value)
 	for _, w := range words {
 		kv := KeyValue{w, ""}
 		res = append(res, kv)
@@ -40,7 +40,7 @@ func ReduceFunc(key string, values []string) string {
 	return ""
 }
 
-// Checks input file agaist output file: each input number should show up
+// Checks input file against output file: each input number should show up
 // in the output file in string sorted order
 func check(t *testing.T, files []string) {
 	output, err := os.Open("mrtmp.test")
@@ -115,6 +115,9 @@ func makeInputs(num int) []string {
 	return names
 }
 
+
+
+
 // Cook up a unique-ish UNIX-domain socket name
 // in /var/tmp. can't use current directory since
 // AFS doesn't support UNIX-domain sockets.
@@ -143,8 +146,7 @@ func cleanup(mr *Master) {
 }
 
 func TestSequentialSingle(t *testing.T) {
-	//mr := Sequential("test", makeInputs(1), 1, MapFunc, ReduceFunc)
-	mr := Sequential("test", makeInputs(1), 3, MapFunc, ReduceFunc)
+	mr := Sequential("test", makeInputs(1), 1, MapFunc, ReduceFunc)
 	mr.Wait()
 	check(t, mr.files)
 	checkWorker(t, mr.stats)
